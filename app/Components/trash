@@ -7,7 +7,7 @@ const InvoiceForm = () => {
   const [formData, setFormData] = useState({
     customerName: "",
     invoiceDate: "",
-    items: [{ description: "", details: "", price: 0 }],
+    items: [{ description: "", quantity: 0, price: 0 }],
   });
 
   const handleInputChange = (e) => {
@@ -18,21 +18,15 @@ const InvoiceForm = () => {
   const handleItemChange = (index, e) => {
     const { name, value } = e.target;
     const updatedItems = [...formData.items];
-    updatedItems[index][name] = name === "price" ? Number(value) : value;
+    updatedItems[index][name] = name === "description" ? value : Number(value);
     setFormData({ ...formData, items: updatedItems });
   };
 
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { description: "", details: "", price: 0 }],
+      items: [...formData.items, { description: "", quantity: 0, price: 0 }],
     });
-  };
-
-  const removeItem = (index) => {
-    const updatedItems = [...formData.items];
-    updatedItems.splice(index, 1);
-    setFormData({ ...formData, items: updatedItems });
   };
 
   const handleSubmit = (e) => {
@@ -80,10 +74,10 @@ const InvoiceForm = () => {
         {formData.items.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-end"
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"
           >
             <div>
-              <Label name="Title" />
+              <Label name="Description" />
               <input
                 type="text"
                 name="description"
@@ -93,33 +87,24 @@ const InvoiceForm = () => {
               />
             </div>
             <div>
-              <Label name="Details" />
+              <Label name="Quantity" />
               <input
-                type="text"
-                name="details"
-                value={item.details}
+                type="number"
+                name="quantity"
+                value={item.quantity}
                 onChange={(e) => handleItemChange(index, e)}
                 className="px-4 py-2 border rounded-lg w-full"
               />
             </div>
-            <div className="flex gap-2">
-              <div className="w-full">
-                <Label name="Price" />
-                <input
-                  type="number"
-                  name="price"
-                  value={item.price}
-                  onChange={(e) => handleItemChange(index, e)}
-                  className="px-4 py-2 border rounded-lg w-full"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => removeItem(index)}
-                className="w-full mt-[22px] bg-red-500  h-[44px] text-white font-semibold  rounded-xl hover:bg-red-700 transition"
-              >
-                Remove
-              </button>
+            <div>
+              <Label name="Price" />
+              <input
+                type="number"
+                name="price"
+                value={item.price}
+                onChange={(e) => handleItemChange(index, e)}
+                className="px-4 py-2 border rounded-lg w-full"
+              />
             </div>
           </div>
         ))}
@@ -133,52 +118,44 @@ const InvoiceForm = () => {
         </button>
       </div>
 
-      {/* Summary */}
+      {/* Show added items below the button */}
       {formData.items.length > 0 && (
         <div className="mt-6 border-t pt-4">
-          <div className="w-full flex ">
-            <div className="w-1/2">
-              <h1 className="font-extrabold ">
-                LPM Electrical & Plumbing Works,
-              </h1>
-              <h1>No: 02, School street,</h1>
-              <h1>East Potheri, Maraimalainagar - 603203,</h1>
-              <h1>Mobile No +91 96770 48936.</h1>
-              <br></br>
-              <br></br>
-              <h4 className="text-lg font-semibold mb-2">Bill Summary</h4>
-            </div>
-            <div className="w-1/2 text-end">
-              <h1 className="font-extrabold">{formData.customerName}</h1>
-              <h2 className="font-light">{formData.invoiceDate}</h2>
-            </div>
-          </div>
+          <h4 className="text-lg font-semibold mb-2">Item Summary</h4>
           <div className="space-y-2">
             {formData.items.map((item, index) => (
               <div
                 key={index}
                 className="flex justify-between text-gray-700 border-b pb-2"
               >
-                <span className="w-2/3">
-                  <strong>
-                    {index + 1}. {item.description}
-                  </strong>
-                  <span className="block text-sm text-gray-500">
-                    {item.details}
-                  </span>
+                <span className="w-2/3 flex  justify-between">
+                  <span className="font-bold text-xl">
+                    {" "}
+                    <strong>
+                      {index + 1}
+                      <span> </span>.<span> </span>
+                      {item.description}
+                    </strong>
+                  </span>{" "}
+                  — {item.quantity} x ₹{item.price}
                 </span>
-                <span className="font-medium text-gray-800">₹{item.price}</span>
+                <span className="font-medium text-gray-800">
+                  ₹{item.quantity * item.price}
+                </span>
               </div>
             ))}
           </div>
 
+          {/* Optional: Total Amount */}
           <div className="mt-4 text-right font-bold text-xl text-green-700">
             Total: ₹
-            {formData.items.reduce((total, item) => total + item.price, 0)}
+            {formData.items.reduce(
+              (total, item) => total + item.quantity * item.price,
+              0
+            )}
           </div>
         </div>
       )}
-
       {/* Submit Button */}
       <button
         type="submit"
